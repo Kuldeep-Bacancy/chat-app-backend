@@ -30,4 +30,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// routes
+
+import userRouter from "./routers/user.routes.js"
+
+app.use('/api/v1/users', userRouter)
+
 export default app
