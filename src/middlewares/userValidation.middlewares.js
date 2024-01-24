@@ -23,15 +23,6 @@ export const registerValidationRules = () => {
     ),
     body('password').notEmpty().withMessage('Password is required'),
     body('password').isLength({ min: 6 }).withMessage('Password length must be at least 6!'),
-    body('confirmPassword').custom(
-      (confirmPassword, { req }) => {
-        const password = req.body.passsword
-        if (password !== confirmPassword){
-          console.log("if called!!!");
-          throw new Error('Password and Confirm Password is not same!')
-        }
-      }
-    ),
     body('username').notEmpty().withMessage('username is required!')
   ];
 }
