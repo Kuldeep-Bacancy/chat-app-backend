@@ -1,6 +1,7 @@
 import { User } from "../models/user.models.js"
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js"
+import sendEmail from "../utils/SendEmail.js"
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -24,9 +25,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = async (req, res) => {
   try {
     const { email, username, password, confirmPassword } = req.body
-
-    console.log("password", password);
-    console.log("confirmPassword", confirmPassword);
 
     if (password !== confirmPassword) {
       return res.status(400).json(
@@ -138,4 +136,59 @@ const logoutUser = async (req, res) => {
 
 }
 
-export { registerUser, loginUser, logoutUser }
+const forgetPassword = async(req, res) => {
+  try {
+    const { email } = req.body
+
+    const existingUser = await User.findOne({ email: email })
+
+    if (!existingUser) {
+      return res.status(422).json(
+        new ApiResponse(422, "Email not found!")
+      )
+    }
+
+    const resetPasswordToken = await existingUser.generateResetPasswordToken()
+    existingUser.resetPasswordToken = resetPasswordToken
+
+    await existingUser.save({ validateBeforeSave: false })
+
+    await sendEmail(existingUser.email, "Reset Password Link", `This is your reset password link. (${process.env.CLIENT_URL}/reset-password?token=${resetPasswordToken})`, res)
+
+    return res.status(200).json(
+      new ApiResponse(200, `Reset Password mail has been send to ${existingUser.email}`)
+    )
+  } catch (error) {
+    res.status(500).json(
+      new ApiResponse(500, error.message)
+    )
+  }
+}
+
+const resetPassword = async(req, res) => {
+  const { resetPasswordToken, newPassword, confirmNewPassword } = req.body
+
+  const user = await User.findOne({ resetPasswordToken: resetPasswordToken })
+
+  if(!user){
+    return res.status(400).json(
+      new ApiResponse(400, "User not found!")
+    )
+  }
+
+  if(newPassword !== confirmNewPassword){
+    return res.status(400).json(
+      new ApiResponse(400, "Password and Confirm Password does not match!")
+    )
+  }
+
+  user.password = newPassword
+  user.resetPasswordToken = ""
+  await user.save({ validateBeforeSave: false })
+
+  return res.status(200).json(
+    new ApiResponse(200, "Password is updated successfully!")
+  )
+}
+
+export { registerUser, loginUser, logoutUser, forgetPassword, resetPassword }
