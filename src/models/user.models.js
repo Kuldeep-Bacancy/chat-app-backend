@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import crypto from "crypto"
 
 const userSchema = mongoose.Schema({
   email: {
@@ -26,6 +27,9 @@ const userSchema = mongoose.Schema({
    refreshToken: {
     type: String
    },
+   resetPasswordToken: {
+    type: String
+   }
 }, { timestamps: true })
 
 userSchema.pre("save", async function (next) {
@@ -60,6 +64,13 @@ userSchema.methods.generateRefreshToken = function () {
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   )
+}
+
+userSchema.methods.generateResetPasswordToken = async function(){
+  let resetPasswordToken  = crypto.randomBytes(20).toString('hex');
+  let incryptedToken = await bcrypt.hash(resetPasswordToken, 10)
+
+  return incryptedToken
 }
 
 export const User = mongoose.model('User', userSchema)
