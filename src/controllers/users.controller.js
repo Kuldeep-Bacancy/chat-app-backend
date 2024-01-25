@@ -191,4 +191,24 @@ const resetPassword = async(req, res) => {
   )
 }
 
-export { registerUser, loginUser, logoutUser, forgetPassword, resetPassword }
+const allUsers = async (req, res) => {
+  try {
+    const keyword = req.query.search
+
+    const users = await User.find({ 
+      $or: [{ username: keyword }, { email: keyword }]
+    }).find({ _id: { $ne: req.user?._id }})
+
+    console.log("users");
+
+    return res.status(200).json(
+      new ApiResponse(200, users)
+    )
+  } catch (error) {
+    return res.status(500).json(
+      new ApiResponse(500, error.message)
+    )
+  }
+}
+
+export { registerUser, loginUser, logoutUser, forgetPassword, resetPassword, allUsers }
