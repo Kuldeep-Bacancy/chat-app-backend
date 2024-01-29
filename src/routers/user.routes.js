@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { forgetPassword, loginUser, logoutUser, registerUser, resetPassword } from "../controllers/users.controller.js";
+import { forgetPassword, loginUser, logoutUser, registerUser, resetPassword, allUsers } from "../controllers/users.controller.js";
 import { loginValidationRules, registerValidationRules } from "../middlewares/userValidation.middlewares.js";
 import { validate } from "../middlewares/validation.middlewares.js";
 import verfiyJWT from "../middlewares/auth.middlewares.js"
 
 const router = Router()
 
+router.route('/').get(verfiyJWT, allUsers)
 router.route('/register').post(registerValidationRules(), validate, registerUser)
 router.route('/login').post(loginValidationRules(), validate, loginUser)
 router.route('/logout').delete(verfiyJWT, logoutUser)
