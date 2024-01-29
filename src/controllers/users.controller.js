@@ -195,9 +195,15 @@ const allUsers = async (req, res) => {
   try {
     const keyword = req.query.search
 
-    const users = await User.find({ 
-      $or: [{ username: keyword }, { email: keyword }]
-    }, { password: 0, refreshToken: 0 }).find({ _id: { $ne: req.user?._id } })
+    const keywordRegex = new RegExp(keyword, 'i'); // 'i' flag for case-insensitive matching
+
+    const users = await User.find({
+      $or: [
+        { username: { $regex: keywordRegex } },
+        { email: { $regex: keywordRegex } }
+      ],
+      _id: { $ne: req.user?._id }
+    }, { password: 0, refreshToken: 0 });
 
     return res.status(200).json(
       new ApiResponse(200, "Users Searched Successfully!", users)
