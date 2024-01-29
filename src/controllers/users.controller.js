@@ -197,12 +197,10 @@ const allUsers = async (req, res) => {
 
     const users = await User.find({ 
       $or: [{ username: keyword }, { email: keyword }]
-    }).find({ _id: { $ne: req.user?._id }})
-
-    console.log("users");
+    }, { password: 0, refreshToken: 0 }).find({ _id: { $ne: req.user?._id } })
 
     return res.status(200).json(
-      new ApiResponse(200, users)
+      new ApiResponse(200, "Users Searched Successfully!", users)
     )
   } catch (error) {
     return res.status(500).json(
