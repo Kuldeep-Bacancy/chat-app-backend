@@ -149,24 +149,24 @@ const updateGroupName = async (req, res) => {
   }
 }
 
-const addToGroup = async (req, res) => {
+const addOrRemoveFromGroup = async (req, res) => {
   try {
-    const { userId, groupId } = req.body
+    const { users, groupId } = req.body
 
     const group = await Chat.findOneAndUpdate(
       { _id: groupId, isGroupChat: true },
-      { $push: { users: userId } },
+      { $set: { users: users } },
       { new: true }
     ).populate("users", "-password -refreshToken -resetPasswordToken").populate("groupAdmin", "-password -refreshToken -resetPasswordToken")
 
     if (!group) {
       return res.status(500).json(
-        new ApiResponse(500, "Something went wrong while adding user to group!")
+        new ApiResponse(500, "Something went wrong while updating members of group!")
       )
     }
 
     return res.status(200).json(
-      new ApiResponse(200, "User added to group successfully!", group)
+      new ApiResponse(200, "Members Updated Successfully!", group)
     )
 
   } catch (error) {
@@ -176,31 +176,4 @@ const addToGroup = async (req, res) => {
   }
 }
 
-const removeFromGroup = async (req, res) => {
-  try {
-    const { userId, groupId } = req.body
-
-    const group = await Chat.findOneAndUpdate(
-      { _id: groupId, isGroupChat: true },
-      { $pull: { users: userId } },
-      { new: true }
-    ).populate("users", "-password -refreshToken -resetPasswordToken").populate("groupAdmin", "-password -refreshToken -resetPasswordToken")
-
-    if (!group) {
-      return res.status(500).json(
-        new ApiResponse(500, "Something went wrong while removing user to group!")
-      )
-    }
-
-    return res.status(200).json(
-      new ApiResponse(200, "User removed from group successfully!", group)
-    )
-
-  } catch (error) {
-    return res.status(500).json(
-      new ApiResponse(500, error.message)
-    )
-  }
-}
-
-export { createOneOnOneChat, currentUserChats, createGroup, updateGroupName, addToGroup, removeFromGroup, fetchChat }
+export { createOneOnOneChat, currentUserChats, createGroup, updateGroupName, addOrRemoveFromGroup, fetchChat }
