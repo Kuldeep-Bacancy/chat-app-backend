@@ -38,7 +38,9 @@ const sendMessage = async (req, res) => {
 
 const getAllMessages = async (req, res) => {
   try {
-    const { chatId } = req.body
+    const chatId = req.params.chatId
+
+    console.log("chatId", chatId);
 
     const messages = await Message.find({
       chat: chatId

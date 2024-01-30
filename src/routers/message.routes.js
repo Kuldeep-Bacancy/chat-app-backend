@@ -6,6 +6,6 @@ import { Router } from "express";
 const router = Router()
 
 router.route('/').post(verfiyJWT, sendMessage)
-router.route('/').get(verfiyJWT, getAllMessages)
+router.route('/:chatId').get(verfiyJWT, getAllMessages)
 
 export default router
