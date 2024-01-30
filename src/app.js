@@ -34,8 +34,10 @@ app.use((req, res, next) => {
 
 import userRouter from "./routers/user.routes.js"
 import chatRouter from "./routers/chat.routes.js"
+import messageRouter from "./routers/message.routes.js"
 
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/chats', chatRouter)
+app.use('/api/v1/messages', messageRouter)
 
 export default app
