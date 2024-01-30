@@ -57,6 +57,26 @@ const currentUserChats = async (req, res) => {
   }
 }
 
+const fetchChat = async (req, res) => {
+  try {
+    const chatId = req.params.chatId
+
+    const chat = await Chat.findOne({ _id: chatId }).populate("users", "-password -refreshToken -resetPasswordToken").populate("groupAdmin", "-password -refreshToken -resetPasswordToken")
+
+    if (!chat) {
+      return res.status(404).json(
+        new ApiResponse(404, "Chat not found!")
+      )
+    }
+
+    return res.status(200).json(
+      new ApiResponse(200, "Chat fetched Successfully!", chat)
+    )
+  } catch (error) {
+    
+  }
+}
+
 const createGroup = async (req, res) => {
   try {
     const { name, userIds } = req.body
@@ -183,4 +203,4 @@ const removeFromGroup = async (req, res) => {
   }
 }
 
-export { createOneOnOneChat, currentUserChats, createGroup, updateGroupName, addToGroup, removeFromGroup }
+export { createOneOnOneChat, currentUserChats, createGroup, updateGroupName, addToGroup, removeFromGroup, fetchChat }
