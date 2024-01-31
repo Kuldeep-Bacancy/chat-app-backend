@@ -3,6 +3,7 @@ import connectDB from "./db/connect.js";
 import app from './app.js'
 import { Server } from 'socket.io';
 import { createServer } from "http";
+import ApiResponse from './utils/ApiResponse.js';
 
 const server = createServer(app)
 const io = new Server(server)
@@ -19,7 +20,9 @@ connectDB()
   })
 
   app.get('/', (req, res) => {
-    res.render('index', { currentYear: new Date().getFullYear() });
+    return res.status(200).json(
+      new ApiResponse(200, "Everything is healthy!")
+    )
   })
 }
 )
