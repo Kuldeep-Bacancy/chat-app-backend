@@ -33,6 +33,14 @@ io.on('connection', (socket) => {
     console.log(`----------------------User (${socket.id}) joined room: ${room}----------------`)
   })
 
+  socket.on('typing',(room) => {
+    socket.in(room).emit('typing')
+  })
+
+  socket.on('stop typing', (room) => {
+    socket.in(room).emit('stop typing')
+  })
+
   socket.on('new-message', (newMessage) => {
     let chat = newMessage?.chat
     socket.in(chat?._id).emit('message-received', newMessage)
