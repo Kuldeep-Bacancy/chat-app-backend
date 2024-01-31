@@ -19,6 +19,12 @@ const sendMessage = async (req, res) => {
       )
     }
 
+    const newMessage = await Message.findOne({
+      _id: msg._id
+    })
+    .populate('sender', '-refreshToken -resetPasswordToken -password')
+    .populate('chat')
+
     await Chat.findOneAndUpdate(
       { _id: chatId },
       { $set: { latestMessage: msg._id }},
@@ -26,7 +32,7 @@ const sendMessage = async (req, res) => {
     )
 
     return res.status(200).json(
-      new ApiResponse(200, "Message Sent Successfully!", msg)
+      new ApiResponse(200, "Message Sent Successfully!", newMessage)
     )
 
   } catch (error) {
@@ -39,8 +45,6 @@ const sendMessage = async (req, res) => {
 const getAllMessages = async (req, res) => {
   try {
     const chatId = req.params.chatId
-
-    console.log("chatId", chatId);
 
     const messages = await Message.find({
       chat: chatId
