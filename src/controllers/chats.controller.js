@@ -126,6 +126,23 @@ const updateGroupName = async (req, res) => {
   try {
     const { name, groupId } = req.body
 
+    const existingGroup = await Chat.findOne({
+      _id: groupId,
+      isGroupChat: true
+    })
+
+    if(!existingGroup){
+      return res.status(404).json(
+        new ApiResponse(400, "Group not found!")
+      )
+    }
+
+    if (!req.user?._id.equals(existingGroup.groupAdmin)){
+      return res.status(422).json(
+        new ApiResponse(422, 'You are not authorized to do this action!')
+      )
+    }
+
     const group = await Chat.findOneAndUpdate(
       { _id: groupId,  isGroupChat: true },
       { name: name },
