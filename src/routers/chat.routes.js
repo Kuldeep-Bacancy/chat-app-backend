@@ -1,7 +1,7 @@
 import { Router } from "express";
 import verfiyJWT from "../middlewares/auth.middlewares.js";
 import { createOneOnOneChat, currentUserChats, createGroup, updateGroupName, addOrRemoveFromGroup, fetchChat } from "../controllers/chats.controller.js";
-import { isCurrentUserIsAdmin } from "../middlewares/isCurrentUserIsAdmin.middleware.js";
+import { isCurrentUserIsAdmin } from "../middlewares/isCurrentUserIsAdmin.middlewares.js";
 
 const router = Router()
 
