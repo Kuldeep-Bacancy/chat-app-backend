@@ -16,7 +16,7 @@ const sendMessage = async (req, res) => {
 
       let imageResponses = await Promise.all(multiplePicturePromise);
       imageResponses.forEach((res) => {
-        imageUrls.push(res.url)
+        imageUrls.push({ name: res.public_id, type: res.format, url: res.url })
       })
     }
 
@@ -26,6 +26,8 @@ const sendMessage = async (req, res) => {
       chat: chatId,
       attachments: imageUrls
     })
+
+    console.log("message", msg);
 
     if(!msg){
       return res.status(500).json(
