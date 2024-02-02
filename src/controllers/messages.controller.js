@@ -1,16 +1,30 @@
 import { Chat } from "../models/chat.models.js"
 import { Message } from "../models/message.models.js"
 import ApiResponse from "../utils/ApiResponse.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 const sendMessage = async (req, res) => {
   try {
     const { content, chatId } = req.body
+    let imageUrls = []
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      let multiplePicturePromise = req.files.map((picture) =>
+        uploadOnCloudinary(picture.path, picture.originalname)
+      );
+
+      let imageResponses = await Promise.all(multiplePicturePromise);
+      imageResponses.forEach((res) => {
+        imageUrls.push(res.url)
+      })
+    }
 
     const msg = await Message.create({
       sender: req.user?._id,
       content: content,
-      chat: chatId
+      chat: chatId,
+      attachments: imageUrls
     })
 
     if(!msg){
