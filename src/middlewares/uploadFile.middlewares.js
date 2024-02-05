@@ -13,7 +13,6 @@ export const uploadFileMiddleware = (req, res, next) => {
 
     // Retrieve uploaded files
     const files = req.files;
-    const errors = [];
 
     // Validate file types and sizes
     files.forEach((file) => {
