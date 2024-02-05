@@ -8,6 +8,8 @@ import path from "path"
 const app = express();
 const __dirname = path.resolve();
 
+console.log(__dirname)
+
 app.use(helmet()) // For security
 
 // To handle CORS related issues
