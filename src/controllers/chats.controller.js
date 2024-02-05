@@ -151,11 +151,21 @@ const updateGroupName = async (req, res) => {
 
 const addOrRemoveFromGroup = async (req, res) => {
   try {
-    const { users, groupId } = req.body
+    const { userIds, groupId } = req.body
+
+    const chat = await Chat.findOne({
+      _id: groupId, isGroupChat: true
+    })
+
+    if (!userIds.includes(chat.groupAdmin._id.toString())){
+      return res.status(422).json(
+        new ApiResponse(422, 'You can not remove your self from the group because you are admin!')
+      )
+    }
 
     const group = await Chat.findOneAndUpdate(
       { _id: groupId, isGroupChat: true },
-      { $set: { users: users } },
+      { $set: { users: userIds } },
       { new: true }
     ).populate("users", "-password -refreshToken -resetPasswordToken").populate("groupAdmin", "-password -refreshToken -resetPasswordToken")
 
