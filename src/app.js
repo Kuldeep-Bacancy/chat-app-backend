@@ -3,12 +3,8 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import logger from "./utils/Logger.js";
-import path from "path"
 
 const app = express();
-const __dirname = path.resolve();
-
-console.log(__dirname)
 
 app.use(helmet()) // For security
 
@@ -20,7 +16,7 @@ app.use(cors({
 
 app.use(express.json({ limit: '20kb' })) // To define size of json which can expect
 app.use(express.urlencoded({ extended: true, limit: "16kb" })) // To deal with body parameters
-app.use(express.static(path.join(__dirname, 'public'))) // To handle static assets
+app.use(express.static('public')) // To handle static assets
 app.use(cookieParser()) // To set and get cookies from client
 
 // Log the incoming request details
