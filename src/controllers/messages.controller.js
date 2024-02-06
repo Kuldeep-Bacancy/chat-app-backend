@@ -1,7 +1,7 @@
 import { Chat } from "../models/chat.models.js"
 import { Message } from "../models/message.models.js"
 import ApiResponse from "../utils/ApiResponse.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { uploadOnCloudinary, deleteImageFromCloudinary } from "../utils/cloudinary.js"
 
 
 const sendMessage = async (req, res) => {
@@ -79,4 +79,68 @@ const getAllMessages = async (req, res) => {
   
 }
 
-export { sendMessage, getAllMessages }
+const deleteMessage = async (req, res) => {
+  try {
+    const msgId = req.params.msgId
+
+    const msg = await Message.findOne({ _id: msgId })
+
+    if(!msg){
+      return res.status(404).json(
+        new ApiResponse(404, "Message not found!")
+      )
+    }
+
+    const attachments = msg.attachments
+
+    await Message.deleteOne({ _id: msgId })
+
+    let multiplePicturePromise = attachments.map((attachment) =>
+      deleteImageFromCloudinary(attachment.name)
+    );
+
+    await Promise.all(multiplePicturePromise);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Message deleted successfully!", msg)
+    )
+  } catch (error) {
+    return res.status(500).json(
+      new ApiResponse(500, error.message)
+    ) 
+  }
+}
+
+const deleteAllMessages = async (req, res) => {
+  try {
+    const chatId = req.params.chatId
+
+    const chat = await Chat.findOne({ _id: chatId })
+
+    if (!chat) {
+      return res.status(404).json(
+        new ApiResponse(404, "Chat not found!")
+      ) 
+    }
+
+    const removeMessages = await Message.deleteMany({
+      chat: chatId
+    })
+
+    if(!removeMessages){
+      return res.status(500).json(
+        new ApiResponse(500, "Something went wrong while deleting the messages!")
+      )
+    }
+
+    return res.status(200).json(
+      new ApiResponse(200, 'Clear Chat Successfully!')
+    )
+  } catch (error) {
+    return res.status(500).json(
+      new ApiResponse(500, error.message)
+    ) 
+  }
+}
+
+export { sendMessage, getAllMessages, deleteMessage, deleteAllMessages }
