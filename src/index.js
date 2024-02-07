@@ -5,6 +5,8 @@ import { Server } from 'socket.io';
 import { createServer } from "http";
 import ApiResponse from './utils/ApiResponse.js';
 
+console.log("REDIS URL",process.env.REDIS_URL)
+
 const server = createServer(app)
 const io = new Server(server)
 
