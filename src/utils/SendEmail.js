@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer"
-import ApiResponse from "./ApiResponse.js";
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -12,7 +11,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = async (to, subject, text, res) => {
+const sendEmail = async (data) => {
+  const { to, subject, text } = data
   const mailOptions = {
     from: {
       name: "Chat App",
@@ -27,9 +27,7 @@ const sendEmail = async (to, subject, text, res) => {
     await transporter.sendMail(mailOptions)
     console.log("Email send Successfuly!");
   } catch (error) {
-    res.status(500).json(
-      new ApiResponse(500, "There are some issues while send email! Please try after some time!")
-    )
+    console.log("Mail error", error);
   }
 }
 
