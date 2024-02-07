@@ -4,7 +4,7 @@ import fs from "fs"
 
 export const uploadFileMiddleware = (req, res, next) => {
   // Use multer upload instance
-  upload.array('attachments[]', 2)(req, res, (err) => {
+  upload.array('attachments[]', 4)(req, res, (err) => {
     if (err && err.code == 'LIMIT_UNEXPECTED_FILE') {
       return res.status(400).json(
         new ApiResponse(400, 'You can only upload maximum 2 attachments!')

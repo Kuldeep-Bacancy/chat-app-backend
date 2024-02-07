@@ -1,7 +1,8 @@
 import { Chat } from "../models/chat.models.js"
 import { Message } from "../models/message.models.js"
 import ApiResponse from "../utils/ApiResponse.js"
-import { uploadOnCloudinary, deleteImageFromCloudinary } from "../utils/cloudinary.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { deleteImageFromCloudinaryJob } from "../utils/deleteImageQueue.js"
 
 
 const sendMessage = async (req, res) => {
@@ -94,8 +95,15 @@ const deleteMessage = async (req, res) => {
     await Message.deleteOne({ _id: msgId })
 
     let multiplePicturePromise = attachments.map((attachment) =>
-      deleteImageFromCloudinary(attachment.name)
-    );
+      deleteImageFromCloudinaryJob(
+        {
+          type: 'deleteImageFromCloudinary',
+          data: {
+           name: attachment.name
+          }
+        }
+      )
+    )
 
     await Promise.all(multiplePicturePromise);
 
