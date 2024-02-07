@@ -27,8 +27,6 @@ const sendMessage = async (req, res) => {
       attachments: imageUrls
     })
 
-    console.log("message", msg);
-
     if(!msg){
       return res.status(500).json(
         new ApiResponse(500, "Something went wrong while sending the message!")

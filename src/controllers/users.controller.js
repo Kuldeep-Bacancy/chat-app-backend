@@ -1,7 +1,7 @@
 import { User } from "../models/user.models.js"
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js"
-import sendEmail from "../utils/SendEmail.js"
+import { sendEmailJob } from "../utils/sendEmailQueue.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -38,9 +38,7 @@ const registerUser = async (req, res) => {
       return res.status(422).json(
         new ApiResponse(422, "Email already taken!")
       )
-    } 
-
-    console.log("existing User", existingUser);
+    }
 
     const user = await User.create({
       email,
@@ -153,8 +151,16 @@ const forgetPassword = async(req, res) => {
 
     await existingUser.save({ validateBeforeSave: false })
 
-    await sendEmail(existingUser.email, "Reset Password Link", `This is your reset password link. (${process.env.CLIENT_URL}/reset-password?token=${resetPasswordToken})`, res)
-
+    await sendEmailJob(
+      { 
+        type: 'sendEmail',
+        data: {
+          to: existingUser.email,
+          subject: "Reset Password Link", 
+          text: `This is your reset password link. (${process.env.CLIENT_URL}/reset-password?token=${resetPasswordToken})`
+        }
+      }
+    )
     return res.status(200).json(
       new ApiResponse(200, `Reset Password mail has been send to ${existingUser.email}`)
     )
