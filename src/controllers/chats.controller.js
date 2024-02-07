@@ -80,8 +80,6 @@ const fetchChat = async (req, res) => {
 const createGroup = async (req, res) => {
   try {
     const { name, userIds } = req.body
-    console.log("name", name);
-    console.log("userIds", userIds);
 
     if(!name || userIds.length <= 0){
       return res.status(400).json(
