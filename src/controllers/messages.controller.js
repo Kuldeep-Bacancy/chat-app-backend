@@ -1,31 +1,33 @@
 import { Chat } from "../models/chat.models.js"
 import { Message } from "../models/message.models.js"
 import ApiResponse from "../utils/ApiResponse.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import { deleteImageFromCloudinaryJob } from "../utils/deleteImageQueue.js"
+import { uploadImageOnCloudinaryJob } from "../utils/ImageUploadWorker.js"
+import { deleteImageFromCloudinaryJob } from "../utils/deleteImageWorker.js"
 
 
 const sendMessage = async (req, res) => {
   try {
     const { content, chatId } = req.body
-    let imageUrls = []
-
-    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-      let multiplePicturePromise = req.files.map((picture) =>
-        uploadOnCloudinary(picture.path, picture.originalname)
-      );
-
-      let imageResponses = await Promise.all(multiplePicturePromise);
-      imageResponses.forEach((res) => {
-        imageUrls.push({ name: res.public_id, type: res.format, url: res.url })
-      })
-    }
+    let imageData = []
 
     const msg = await Message.create({
       sender: req.user?._id,
       content: content,
-      chat: chatId,
-      attachments: imageUrls
+      chat: chatId
+    })
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      req.files.forEach((picture) =>
+        imageData.push({ path: picture.path, fileName: picture.originalname })
+      )
+    }
+
+    await uploadImageOnCloudinaryJob({
+      type: 'uploadOnCloudinary',
+      data: {
+        images: imageData,
+        msgId: msg._id
+      }
     })
 
     if(!msg){
