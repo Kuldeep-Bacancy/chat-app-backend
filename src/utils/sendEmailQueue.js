@@ -1,8 +1,11 @@
 import { Queue } from "bullmq";
 import { Worker } from "bullmq";
 import sendEmail from "./SendEmail.js";
+import { Redis } from "ioredis";
 
-const sendEmailQueue = new Queue('sendEmailQueue', process.env.REDIS_URL)
+const redis = new Redis(process.env.REDIS_URL);
+
+const sendEmailQueue = new Queue('sendEmailQueue', redis)
 
 export const sendEmailJob = async (job) => { 
   await sendEmailQueue.add(job.type, job.data)
@@ -23,7 +26,7 @@ const workerHandler = async (job) => {
 
 const workerOptions = {
   connection: {
-    url: process.env.REDIS_URL
+    url: redis
   },
 };
 
