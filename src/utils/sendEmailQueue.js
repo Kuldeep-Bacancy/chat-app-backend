@@ -3,8 +3,6 @@ import { Worker } from "bullmq";
 import sendEmail from "./SendEmail.js";
 import { Redis } from "ioredis";
 
-console.log("REDIS URL send email------------", process.env.REDIS_URL);
-
 const redis = new Redis(process.env.REDIS_URL);
 
 const sendEmailQueue = new Queue('sendEmailQueue', redis)
