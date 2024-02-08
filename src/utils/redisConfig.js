@@ -7,4 +7,4 @@ const redisOptions = process.env.ENV == 'development' ? process.env.REDIS_URL : 
   port: process.env.REDIS_PORT
 }
 
-export const redisConnection = new Redis(redisOptions);
+export const redisConnection = new Redis(process.env.REDIS_URL);
