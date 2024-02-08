@@ -2,6 +2,9 @@ import { Queue } from "bullmq";
 import { Worker } from "bullmq";
 import { deleteImageFromCloudinary } from "./cloudinary.js";
 import { Redis } from "ioredis";
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const redis = new Redis(process.env.REDIS_URL);
 
