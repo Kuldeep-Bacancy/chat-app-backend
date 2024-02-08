@@ -1,16 +1,23 @@
-import { Queue } from "bullmq";
 import { Worker } from "bullmq";
 import sendEmail from "./SendEmail.js";
+import { sendEmailQueue } from "./queues.js";
 import { redisConnection } from "./redisConfig.js";
 
-const sendEmailQueue = new Queue('sendEmailQueue', redisConnection)
-
 export const sendEmailJob = async (job) => { 
-  await sendEmailQueue.add(job.type, job.data)
+  await sendEmailQueue.add(job.type, job.data, {
+    removeOnComplete: {
+      age: 3600, // keep up to 1 hour
+      count: 1000, // keep up to 1000 jobs
+    },
+    attempts: 2,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    }
+  })
 }
 
 const workerHandler = async (job) => {
-
   try {
     console.log("Starting job------------:", job.name);
     await sendEmail(job.data)
@@ -27,8 +34,6 @@ const workerOptions = {
     url: redisConnection
   },
 };
-
-console.log("Connection setup-------- send email");
 
 const worker = new Worker("sendEmailQueue", workerHandler, workerOptions);
 
