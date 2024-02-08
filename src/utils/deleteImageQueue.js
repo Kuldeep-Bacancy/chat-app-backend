@@ -3,6 +3,8 @@ import { Worker } from "bullmq";
 import { deleteImageFromCloudinary } from "./cloudinary.js";
 import { Redis } from "ioredis";
 
+console.log("REDIS URL delete image ------------", process.env.REDIS_URL);
+
 const redis = new Redis(process.env.REDIS_URL);
 
 const deleteImageQueue = new Queue('deleteImageQueue', redis)
