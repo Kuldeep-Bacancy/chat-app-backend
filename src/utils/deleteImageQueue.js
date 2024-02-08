@@ -1,11 +1,9 @@
 import { Queue } from "bullmq";
 import { Worker } from "bullmq";
 import { deleteImageFromCloudinary } from "./cloudinary.js";
-import { Redis } from "ioredis";
+import { redisConnection } from "./redisConfig.js";
 
-const redis = new Redis(process.env.REDIS_URL);
-
-const deleteImageQueue = new Queue('deleteImageQueue', redis)
+const deleteImageQueue = new Queue('deleteImageQueue', redisConnection)
 
 export const deleteImageFromCloudinaryJob = async (job) => {
   await deleteImageQueue.add(job.type, job.data)
@@ -26,9 +24,11 @@ const workerHandler = async (job) => {
 
 const workerOptions = {
   connection: {
-    url: redis
+    url: redisConnection
   },
 };
+
+console.log("Connection setup-------- delete job");
 
 const worker = new Worker("deleteImageQueue", workerHandler, workerOptions);
 
