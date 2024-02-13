@@ -20,15 +20,15 @@ const sendMessage = async (req, res) => {
       req.files.forEach((picture) =>
         imageData.push({ path: picture.path, fileName: picture.originalname })
       )
-    }
 
-    await uploadImageOnCloudinaryJob({
-      type: 'uploadOnCloudinary',
-      data: {
-        images: imageData,
-        msgId: msg._id
-      }
-    })
+      await uploadImageOnCloudinaryJob({
+        type: 'uploadOnCloudinary',
+        data: {
+          images: imageData,
+          msgId: msg._id
+        }
+      })
+    }
 
     if(!msg){
       return res.status(500).json(
@@ -96,18 +96,20 @@ const deleteMessage = async (req, res) => {
 
     await Message.deleteOne({ _id: msgId })
 
-    let multiplePicturePromise = attachments.map((attachment) =>
-      deleteImageFromCloudinaryJob(
-        {
-          type: 'deleteImageFromCloudinary',
-          data: {
-           name: attachment.name
+    if(attachments){
+      let multiplePicturePromise = attachments.map((attachment) =>
+        deleteImageFromCloudinaryJob(
+          {
+            type: 'deleteImageFromCloudinary',
+            data: {
+              name: attachment.name
+            }
           }
-        }
+        )
       )
-    )
 
-    await Promise.all(multiplePicturePromise);
+      await Promise.all(multiplePicturePromise);
+    }
 
     return res.status(200).json(
       new ApiResponse(200, "Message deleted successfully!", msg)
