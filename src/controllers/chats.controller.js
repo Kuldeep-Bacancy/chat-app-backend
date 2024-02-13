@@ -45,7 +45,13 @@ const createOneOnOneChat = async(req, res) => {
 
 const currentUserChats = async (req, res) => {
   try {
-    const chats = await Chat.find({ users: { $elemMatch: { $eq: req.user?._id } } }).populate("users", "-password -refreshToken -resetPasswordToken").populate("latestMessage")
+    const chats = await Chat.find({ users: { $elemMatch: { $eq: req.user?._id } } }).populate("users", "-password -refreshToken -resetPasswordToken").populate({
+      path: 'latestMessage',
+      populate: {
+        path: 'sender',
+        select: 'username' // Select the fields you want to populate from the sender
+      }
+    })
 
     return res.status(200).json(
       new ApiResponse(200, 'Chat fetched successfully!', chats)
